@@ -1,7 +1,7 @@
 class GroupsController < ApplicationController
 
   before_action :authenticate_user! , only: [:new, :create, :edit, :update, :destroy]
-  before_action :find_group_and_check_permission, only: [:edit, :update, :destroy]
+  before_action :find_group_and_check_permission, only: [:edit, :update, :destroy, :join, :quit]
 
   def index
     @groups = Group.all
@@ -48,6 +48,30 @@ class GroupsController < ApplicationController
       redirect_to groups_path
     end
 
+    def join
+      @group = Group.find(params[:id])
+
+      if !current_user.is_member_of?(@group)
+        current_user.join!(@group)
+        flash[:notice] = "加入成功"
+      else
+        flash[:warning] = "不要重复加入"
+      end
+    end
+
+
+      def  quit
+        @group = Group.find(params[:id])
+
+        if current_user.is_member_of?(@group)
+          current_user.quit!(@group)
+          flash[:alert] = "成功退出"
+        else
+          flash[:warning] = "不是本群成员，退出毛线啊你"
+        end
+      end
+    end
+
 
 
 
@@ -63,4 +87,3 @@ class GroupsController < ApplicationController
         redirect_to root_path, alert: "You have no permission"
       end
     end
-end
