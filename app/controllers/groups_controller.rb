@@ -15,6 +15,7 @@ class GroupsController < ApplicationController
     @group = Group.new(group_params)
     @group.user = current_user
     if @group.save
+      current_user.join!(@group)
 
       redirect_to groups_path
     else
@@ -48,9 +49,9 @@ class GroupsController < ApplicationController
       redirect_to groups_path
     end
 
+
     def join
       @group = Group.find(params[:id])
-
       if !current_user.is_member_of?(@group)
         current_user.join!(@group)
         flash[:notice] = "加入成功"
@@ -62,15 +63,14 @@ class GroupsController < ApplicationController
 
       def  quit
         @group = Group.find(params[:id])
-
         if current_user.is_member_of?(@group)
           current_user.quit!(@group)
           flash[:alert] = "成功退出"
         else
           flash[:warning] = "不是本群成员，退出毛线啊你"
         end
-      end
     end
+
 
 
 
@@ -87,3 +87,6 @@ class GroupsController < ApplicationController
         redirect_to root_path, alert: "You have no permission"
       end
     end
+
+
+  end
